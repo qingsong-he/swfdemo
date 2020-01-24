@@ -1,0 +1,38 @@
+GET http://localhost:3000/api/hello1?id=99
+Accept: application/json
+
+###
+POST http://localhost:3000/api/hello2
+Content-Type: application/json
+
+{}
+
+###
+POST http://localhost:3000/api/hello3
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="field-name"
+
+field-value1
+--WebAppBoundary--
+
+###
+POST http://localhost:3000/api/hello4
+Content-Type: application/x-www-form-urlencoded
+
+id=99&content=new-element
+
+
+
+###
+POST http://localhost:3000/api/hello5
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="field-name"; filename="file.txt"
+
+< /home/qs-he/.vimrc
+--WebAppBoundary--
+
+###

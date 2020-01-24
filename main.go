@@ -5,6 +5,7 @@ import (
 	"github.com/qingsong-he/ce"
 	"github.com/qingsong-he/swf"
 	"go.uber.org/zap"
+	"io/ioutil"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -56,13 +57,49 @@ func main() {
 	}, withRecover)
 
 	// test router
-	httpSrv.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
+	httpSrv.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
 		if time.Now().Unix()%2 == 0 {
 			w.Write([]byte("/hello"))
 		} else {
 			panic(1)
 			//ce.CheckError(io.EOF)
 		}
+	}, withRecover)
+
+	// GET router
+	httpSrv.HandleFunc("/api/hello1", func(w http.ResponseWriter, r *http.Request) {
+		r.FormValue("")
+		w.Write([]byte(r.Form.Encode()))
+	}, withRecover)
+
+	// POST 'text body' router
+	httpSrv.HandleFunc("/api/hello2", func(w http.ResponseWriter, r *http.Request) {
+		bin, err := ioutil.ReadAll(r.Body)
+		ce.CheckError(err)
+		w.Write(bin)
+	}, withRecover)
+
+	// POST 'parameters body' router
+	httpSrv.HandleFunc("/api/hello3", func(w http.ResponseWriter, r *http.Request) {
+		r.FormValue("")
+		w.Write([]byte(r.FormValue("field-name")))
+	}, withRecover)
+
+	// POST 'form with a text field' router
+	httpSrv.HandleFunc("/api/hello4", func(w http.ResponseWriter, r *http.Request) {
+		r.FormValue("")
+		w.Write([]byte(r.FormValue("content")))
+	}, withRecover)
+
+	// POST 'form with file field' router
+	httpSrv.HandleFunc("/api/hello5", func(w http.ResponseWriter, r *http.Request) {
+		r.FormValue("")
+		f, _, err := r.FormFile("field-name")
+		ce.CheckError(err)
+		bin, err := ioutil.ReadAll(f)
+		ce.CheckError(err)
+		f.Close()
+		w.Write(bin)
 	}, withRecover)
 
 	// pprof router
