@@ -23,7 +23,7 @@ func withRecover(next http.HandlerFunc) http.HandlerFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				if _, isMe := ce.IsFromMe(err); !isMe {
-					ce.Error("panic", zap.Any("errByPanic", err))
+					ce.Error("recover", zap.Any("errByRecover", err))
 				}
 				if _, ok := err.(error); ok {
 					http.Error(w, err.(error).Error(), http.StatusInternalServerError)
@@ -117,7 +117,7 @@ func main() {
 		defer func() {
 			if err := recover(); err != nil {
 				if _, isMe := ce.IsFromMe(err); !isMe {
-					ce.Error("panic", zap.Any("errByPanic", err))
+					ce.Error("recover", zap.Any("errByRecover", err))
 				}
 			}
 			wg.Done()
@@ -128,7 +128,7 @@ func main() {
 			defer func() {
 				if err := recover(); err != nil {
 					if _, isMe := ce.IsFromMe(err); !isMe {
-						ce.Error("panic", zap.Any("errByPanic", err))
+						ce.Error("recover", zap.Any("errByRecover", err))
 					}
 				}
 				wg.Done()
