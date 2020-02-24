@@ -22,7 +22,7 @@ func withRecover(next http.HandlerFunc) http.HandlerFunc {
 
 		defer func() {
 			if err := recover(); err != nil {
-				if !ce.IsFromMe(err) {
+				if _, isMe := ce.IsFromMe(err); !isMe {
 					ce.Error("panic", zap.Any("errByPanic", err))
 				}
 				if _, ok := err.(error); ok {
@@ -116,7 +116,7 @@ func main() {
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				if !ce.IsFromMe(err) {
+				if _, isMe := ce.IsFromMe(err); !isMe {
 					ce.Error("panic", zap.Any("errByPanic", err))
 				}
 			}
@@ -127,7 +127,7 @@ func main() {
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
-					if !ce.IsFromMe(err) {
+					if _, isMe := ce.IsFromMe(err); !isMe {
 						ce.Error("panic", zap.Any("errByPanic", err))
 					}
 				}
