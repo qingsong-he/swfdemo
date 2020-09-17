@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/qingsong-he/ce"
 	"github.com/qingsong-he/swf"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
 	"net/http/pprof"
@@ -22,8 +21,8 @@ func withRecover(next http.HandlerFunc) http.HandlerFunc {
 
 		defer func() {
 			if err := recover(); err != nil {
-				if _, isMe := ce.IsFromMe(err); !isMe {
-					ce.Error("recover", zap.Any("errByRecover", err))
+				if _, isMe := ce.IsFromCe(err); !isMe {
+					ce.Print(err)
 				}
 				if _, ok := err.(error); ok {
 					http.Error(w, err.(error).Error(), http.StatusInternalServerError)
@@ -32,8 +31,7 @@ func withRecover(next http.HandlerFunc) http.HandlerFunc {
 				}
 				return
 			}
-
-			ce.Info("", zap.String("addr", r.RemoteAddr), zap.String("m", r.Method), zap.String("h", r.Host), zap.String("url", r.RequestURI), zap.Duration("d", time.Since(inCome)))
+			ce.Print(r.RemoteAddr, r.Method, r.Host, r.RequestURI, time.Since(inCome))
 		}()
 
 		next.ServeHTTP(w, r)
@@ -116,8 +114,8 @@ func main() {
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				if _, isMe := ce.IsFromMe(err); !isMe {
-					ce.Error("recover", zap.Any("errByRecover", err))
+				if _, isMe := ce.IsFromCe(err); !isMe {
+					ce.Print(err)
 				}
 			}
 			wg.Done()
@@ -127,8 +125,8 @@ func main() {
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
-					if _, isMe := ce.IsFromMe(err); !isMe {
-						ce.Error("recover", zap.Any("errByRecover", err))
+					if _, isMe := ce.IsFromCe(err); !isMe {
+						ce.Print(err)
 					}
 				}
 				wg.Done()
@@ -149,7 +147,7 @@ func main() {
 forLableByNotify:
 	for {
 		s := <-mainByExitAlarm
-		ce.Info(s.String())
+		ce.Print(s.String())
 		switch s {
 		case syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM:
 			break forLableByNotify
